@@ -2,7 +2,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "World.h"
-#include "AudioSource.h"
 #include "AudioListener.h"
 
 using namespace std;
@@ -111,10 +110,7 @@ int main()
 	lgfx_setup2d(iWidth, iHeight);
 
 	bool bOpen = true;
-	int iWidthRun = 0;
-	int iHeighRun = 0;
-	int iWidthIdle = 0;
-	int iHeightIdle = 0;
+
 	int iWidthClouds = 0;
 	int iHeightClouds = 0;
 	double deltaTime = 0;
@@ -125,23 +121,6 @@ int main()
 	double* pXMouse = &dXMouse;
 	double* pYMouse = &dYMouse;
 
-	unsigned char* sRunBytes = stbi_load("data//run.png", &iWidthRun, &iHeighRun, nullptr, 4);	
-	pTextureRun = ltex_alloc(iWidthRun, iHeighRun, 1);
-	ltex_setpixels(pTextureRun, sRunBytes);
-	stbi_image_free(sRunBytes);
-
-	unsigned char* sIdleBytes = stbi_load("data//idle.png", &iWidthIdle, &iHeightIdle, nullptr, 4);
-	pTextureIdle = ltex_alloc(iWidthIdle, iHeightIdle, 1);
-	ltex_setpixels(pTextureIdle, sIdleBytes);
-	stbi_image_free(sIdleBytes);
-
-	Sprite player(pTextureIdle, 1, 1);
-	player.setPivot(Vec2(0.5f, 0.5f));
-	player.setFps(1);
-	player.setPosition(Vec2(400, 372));
-	player.setCollisionType(COLLISION_RECT);
-	player.setCallback(SpriteCallback);
-
 
 	unsigned char* sCloudsBytes = stbi_load("data//clouds.png", &iWidthClouds, &iHeightClouds, nullptr, 4);
 	ltex_t* pTextureClouds = nullptr;
@@ -150,17 +129,21 @@ int main()
 	stbi_image_free(sCloudsBytes);
 
 	World world(0.8f, 0.8f, 0.8f, pTextureClouds, "data//map.tmx");
-	world.setSpriteFollowing(world.getNumberSprites());
-	player.setWorld(&world);
-	world.addSprite(player);
 
 	//Audio
-
-
 	ALCdevice* pDevice = alcOpenDevice(NULL);
 	ALCcontext* pContext = alcCreateContext(pDevice, NULL);
 	ALCboolean contextCurrent = alcMakeContextCurrent(pContext);
 
+	AudioListener* pListener;
+	pListener->getInstance();
+
+	AudioBuffer* pMusic;
+	pMusic = pMusic->load("data//music.wav");
+
+	AudioSource source = AudioSource(pMusic);
+
+	source.play();
 
 	//5) Bucle principal
 	while (!glfwWindowShouldClose(pWindow) && bOpen)
@@ -179,6 +162,15 @@ int main()
 
 		//5.3) Actualizamos lógica de juego
 		world.update(deltaTime);
+		if(source.isPlaying())
+		{
+			printf("is Playing\n");
+		}
+		else
+		{
+			printf("is NOT Playing\n");
+
+		}
 
 		//5.4-5) Limpiamos el backbuffer y renderizamos la escena.
 		world.draw(Vec2(iWidth, iHeight));

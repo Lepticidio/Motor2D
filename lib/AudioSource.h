@@ -4,6 +4,7 @@
 class AudioSource
 {
 	ALuint m_iSource;
+public:
 	AudioSource(AudioBuffer* buffer);
 	void setPitch(float pitch);
 	void setGain(float gain);

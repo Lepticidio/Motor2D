@@ -2,7 +2,7 @@
 
 AudioSource::AudioSource(AudioBuffer* buffer)
 {
-	ALuint* pID = nullptr;
+	ALuint* pID = new ALuint;
 	alGenSources(1, pID);
 	m_iSource = *pID;
 	ALuint uBufferID = buffer->getAlBuffer();
@@ -52,12 +52,18 @@ void AudioSource::pause()
 }
 bool AudioSource::isPlaying() const
 {
-	ALint* iResult = nullptr;
+	ALint* iResult = new ALint;
 	alGetSourcei(m_iSource, AL_SOURCE_STATE, iResult);
-
-	if (*iResult == AL_PLAYING)
+	if (iResult != nullptr)
 	{
-		return true;
+		if (*iResult == AL_PLAYING)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else
 	{

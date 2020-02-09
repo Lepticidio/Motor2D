@@ -16,36 +16,36 @@ AudioBuffer* AudioBuffer::load(const char* filename)
 	if (pFile != nullptr)
 	{
 		unsigned char* sBuffer = new unsigned char[uFileSize];
-		ALuint* pBuffer = nullptr;
+		ALuint* pBuffer = new ALuint;
 		alGenBuffers(1, pBuffer);
 		int readResult = fread(sBuffer, sizeof(unsigned char), uFileSize, pFile);
 		int iChannels = (int)sBuffer[21];
 		int iSampleRate = (int)(sBuffer[23] << 24 | sBuffer[24] << 16 | sBuffer[25] << 8 | sBuffer[26]);
 		int iBitsPerSample = (int)sBuffer[33];
-		ALenum format;
-		ALvoid* pData = nullptr;
+		ALenum* pFormat = new ALenum;
+		ALvoid* pData = new void*;
 		if (iChannels == 1)
 		{
 			if (iBitsPerSample == 8)
 			{
-				format = AL_FORMAT_MONO8;
+				*pFormat = AL_FORMAT_MONO8;
 			}
 
 			else if (iBitsPerSample == 16)
 			{
-				format = AL_FORMAT_MONO16;
+				*pFormat = AL_FORMAT_MONO16;
 			}
 		}
 		else
 		{
 			if (iBitsPerSample == 8)
 			{
-				format = AL_FORMAT_STEREO8;
+				*pFormat = AL_FORMAT_STEREO8;
 			}
 
 			else if (iBitsPerSample == 16)
 			{
-				format = AL_FORMAT_STEREO16;
+				*pFormat = AL_FORMAT_STEREO16;
 			}
 		}
 		int iDataSize = 0;
@@ -70,7 +70,7 @@ AudioBuffer* AudioBuffer::load(const char* filename)
 		alBufferData
 		(
 			*pBuffer,
-			format,
+			*pFormat,
 			pData,
 			iDataSize,
 			iSampleRate
