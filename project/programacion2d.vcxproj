@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="AudioBuffer.cpp" />
+    <ClCompile Include="AudioListener.cpp" />
     <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="CircleCollider.cpp" />
@@ -37,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\AudioBuffer.h" />
+    <ClInclude Include="..\lib\AudioListener.h" />
     <ClInclude Include="..\lib\AudioSource.h" />
     <ClInclude Include="..\lib\Background.h" />
     <ClInclude Include="..\lib\CircleCollider.h" />

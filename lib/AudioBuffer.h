@@ -5,9 +5,10 @@
 class AudioBuffer
 {
 	ALvoid* m_data;
-	uint32_t m_iBuffer;
+	uint32_t m_uBuffer;
 	AudioBuffer(uint32_t _iBuffer, ALvoid* _data);
 	static AudioBuffer* load(const char* filename);
-	uint32_t  getAlBuffer() const;
+public:
+	uint32_t getAlBuffer() const;
 };
 

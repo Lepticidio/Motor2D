@@ -1,7 +1,7 @@
 #include "AudioBuffer.h"
 
 AudioBuffer::AudioBuffer(uint32_t _iBuffer, ALvoid* _data)
-	: m_iBuffer(_iBuffer), m_data(_data)
+	: m_uBuffer(_iBuffer), m_data(_data)
 {
 
 }
@@ -84,5 +84,5 @@ AudioBuffer* AudioBuffer::load(const char* filename)
 }
 uint32_t  AudioBuffer::getAlBuffer() const
 {
-	return m_iBuffer;
+	return m_uBuffer;
 }
