@@ -2,15 +2,46 @@
 
 AudioSource::AudioSource(AudioBuffer* buffer)
 {
+	ALenum auxError = alGetError();
+	if (auxError != AL_NO_ERROR)
+	{
+
+		return;
+	}
 	ALuint* pID = new ALuint;
 	alGenSources(1, pID);
+
+	auxError = alGetError();
+	if (auxError != AL_NO_ERROR)
+	{
+
+		return;
+	}
+
+
 	m_iSource = *pID;
 	ALuint uBufferID = buffer->getAlBuffer();
+
+	auxError = alGetError();
+	if (auxError != AL_NO_ERROR)
+	{
+
+		return;
+	}
+
+
 	alSourcei(m_iSource, AL_BUFFER, uBufferID);
 	alSourcei(m_iSource, AL_LOOPING, (int)false);
 	alSourcef(m_iSource, AL_PITCH, 1);
 	alSourcef(m_iSource, AL_GAIN, 1);
 	alSource3f(m_iSource, AL_VELOCITY, 0, 0, 0);
+
+	auxError = alGetError();
+	if (auxError != AL_NO_ERROR)
+	{
+
+		return;
+	}
 }
 
 void AudioSource::setPitch(float pitch)
@@ -41,6 +72,9 @@ void AudioSource::setVelocity(float x, float y, float z)
 void AudioSource::play()
 {
 	alSourcePlay(m_iSource);
+
+	
+
 }
 void AudioSource::stop()
 {

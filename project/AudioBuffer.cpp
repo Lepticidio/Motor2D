@@ -16,14 +16,22 @@ AudioBuffer* AudioBuffer::load(const char* filename)
 	if (pFile != nullptr)
 	{
 		unsigned char* sBuffer = new unsigned char[uFileSize];
-		ALuint* pBuffer = new ALuint;
+		ALuint* pBuffer = new ALuint();
 		alGenBuffers(1, pBuffer);
+
+
+		ALenum auxError = alGetError();
+		if (auxError != AL_NO_ERROR)
+		{
+
+			return 0;
+		}
+
 		int readResult = fread(sBuffer, sizeof(unsigned char), uFileSize, pFile);
-		int iChannels = (int)sBuffer[21];
-		int iSampleRate = (int)(sBuffer[23] << 24 | sBuffer[24] << 16 | sBuffer[25] << 8 | sBuffer[26]);
-		int iBitsPerSample = (int)sBuffer[33];
-		ALenum* pFormat = new ALenum;
-		ALvoid* pData = new void*;
+		int iChannels = (int)(sBuffer[23] << 8 | sBuffer[22]);
+		int iSampleRate = (int)(sBuffer[27] << 24 | sBuffer[26] << 16 | sBuffer[25] << 8 | sBuffer[24]);
+		int iBitsPerSample = (int)(sBuffer[35] << 8 | sBuffer[34]);
+		ALenum* pFormat = new ALenum ();
 		if (iChannels == 1)
 		{
 			if (iBitsPerSample == 8)
@@ -49,6 +57,7 @@ AudioBuffer* AudioBuffer::load(const char* filename)
 			}
 		}
 		int iDataSize = 0;
+		int iDataEndPosition = 0;
 		for (int i = 0; i < (int)uFileSize; i++)
 		{
 			if (sBuffer[i] == 'd')
@@ -59,28 +68,51 @@ AudioBuffer* AudioBuffer::load(const char* filename)
 					{
 						if (sBuffer[i+3] == 'a')
 						{
-							iDataSize = (int)(sBuffer[i + 4 + 0] << 24 | sBuffer[i + 4 + 1] << 16 | sBuffer[i + 4 + 2] << 8 | sBuffer[i + 4 + 3]);
-							iDataSize = (int)(sBuffer[0] << 24 | sBuffer[1] << 16 | sBuffer[2] << 8 | sBuffer[3]);
+							iDataSize = (int)(sBuffer[i + 7] << 24 | sBuffer[i + 6] << 16 | sBuffer[i + 5] << 8 | sBuffer[i + 4]);
+							iDataEndPosition = i + 8;
+							break;
 						}
 					}
 				}
 			}
 		}
 
+		auxError = alGetError();
+		if (auxError != AL_NO_ERROR)
+		{
+
+			return 0;
+		}
+
+		unsigned char* sData = new unsigned char [iDataSize];
+		
+		for (int i = 0; i < iDataSize; i++)
+		{
+			sData[i] = sBuffer[i + iDataEndPosition];
+		}
+		ALvoid* pData = static_cast<ALvoid*>(sData);
 		alBufferData
 		(
 			*pBuffer,
 			*pFormat,
-			pData,
+			sData,
 			iDataSize,
 			iSampleRate
 		);
-		return new AudioBuffer(*pBuffer, pData);
+
+		auxError = alGetError();
+		if (auxError != AL_NO_ERROR)
+		{
+
+			return 0;
+		}
+		return new AudioBuffer(*pBuffer, sData);
 	}
 	else
 	{
 		return nullptr;
 	}
+
 }
 uint32_t  AudioBuffer::getAlBuffer() const
 {

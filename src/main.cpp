@@ -135,13 +135,32 @@ int main()
 	ALCcontext* pContext = alcCreateContext(pDevice, NULL);
 	ALCboolean contextCurrent = alcMakeContextCurrent(pContext);
 
-	AudioListener* pListener;
-	pListener->getInstance();
+	//AudioListener* pListener;
+	//pListener->getInstance();
+	AudioListener*    pAudioListener = new AudioListener();
+	ALenum auxError = alGetError();
+	if (auxError != AL_NO_ERROR)
+	{
 
+		return 0;
+	}
 	AudioBuffer* pMusic;
 	pMusic = pMusic->load("data//music.wav");
+	
+	auxError = alGetError();
+	if (auxError != AL_NO_ERROR)
+	{
 
+		return 0;
+	}
 	AudioSource source = AudioSource(pMusic);
+	
+	auxError = alGetError();
+	if (auxError != AL_NO_ERROR)
+	{
+
+		return 0;
+	}
 
 	source.play();
 

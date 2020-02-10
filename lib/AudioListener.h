@@ -15,11 +15,11 @@ public:
         instance.setListenerOrientation(0, 0, 0);
         return instance;
     }
-private:
+public:
     AudioListener() {}                   
 
-public:
-    AudioListener(AudioListener const&) = delete;
-    void operator=(AudioListener const&) = delete;
+//public:
+//    AudioListener(AudioListener const&) = delete;
+//    void operator=(AudioListener const&) = delete;
 
 };
