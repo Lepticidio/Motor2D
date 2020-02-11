@@ -179,6 +179,26 @@ int main()
 		vMousePos = Vec2(dXMouse, dYMouse);
 		vMousePos = vMousePos + world.getCameraPosition();
 
+
+
+
+		if (GetAsyncKeyState(VK_UP))
+		{
+			source.increasePitch();
+		}
+		if (GetAsyncKeyState(VK_DOWN))
+		{
+			source.decreasePitch();
+		}
+		if (GetAsyncKeyState(VK_RIGHT))
+		{
+			source.moveRight();
+		}
+		if (GetAsyncKeyState(VK_LEFT))
+		{
+			source.moveLeft();
+		}
+
 		//5.3) Actualizamos lógica de juego
 		world.update(deltaTime);
 		if(source.isPlaying())
