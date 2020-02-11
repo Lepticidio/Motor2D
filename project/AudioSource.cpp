@@ -1,5 +1,6 @@
 #include "AudioSource.h"
 
+
 AudioSource::AudioSource(AudioBuffer* buffer)
 {
 	ALenum auxError = alGetError();

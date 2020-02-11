@@ -1,6 +1,43 @@
 #define LITE_GFX_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 
+#ifdef _WIN32
+#include "glut.h"
+#pragma comment(linker,"/SUBSYSTEM:CONSOLE")
+#endif
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <GL/glut.h>
+#include <GLES3/gl32.h>
+#include <emscripten/html5.h>
+#endif
+
+#ifdef __linux__
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
+#include <GL/glut.h>
+#endif
+
+#ifdef _MSC_VER
+#define UNUSED_ARGS(...) (void)(true ? (void)0 : ((void)(__VA_ARGS__)))
+#else
+#define UNUSED_ARGS(...)
+#endif
+
+
+#include <NsRender/GLFactory.h>
+#include <NsGui/IntegrationAPI.h>
+#include <NsGui/IRenderer.h>
+#include <NsGui/IView.h>
+#include <NsGui/Grid.h>
+
+
+static Noesis::IView* _view;
+
 #include "World.h"
 #include "AudioListener.h"
 
@@ -28,6 +65,20 @@ ltex_t* pTextureIdle = nullptr;
 
 #include <fstream>     
 #include <iterator>
+
+
+void LogHandler(const char* filename, uint32_t line, uint32_t level, const char* channel,
+	const char* message)
+{
+	if (strcmp(channel, "") == 0)
+	{
+		// [TRACE] [DEBUG] [INFO] [WARNING] [ERROR]
+		const char* prefixes[] = { "T", "D", "I", "W", "E" };
+		const char* prefix = level < NS_COUNTOF(prefixes) ? prefixes[level] : " ";
+		fprintf(stderr, "[NOESIS/%s] %s\n", prefix, message);
+	}
+}
+
 
 bool GetKeyInput(char _cInput)
 {
@@ -99,6 +150,43 @@ int main()
 {
 	//1) Iniciamos la librería GFWX
 	glfwInit();
+
+	Noesis::GUI::Init(nullptr, LogHandler, nullptr);
+	// For simplicity purposes we are not using resource providers in this sample. ParseXaml() is
+	// enough if there is no extra XAML dependencies
+	Noesis::Ptr<Noesis::Grid> xaml(Noesis::GUI::ParseXaml<Noesis::Grid>(R"(
+        <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Offset="0" Color="#FF123F61"/>
+                    <GradientStop Offset="0.6" Color="#FF0E4B79"/>
+                    <GradientStop Offset="0.7" Color="#FF106097"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <Viewbox>
+                <StackPanel Margin="50">
+                    <Button Content="Hello World!" Margin="0,30,0,0"/>
+                    <Rectangle Height="5" Margin="-10,20,-10,0">
+                        <Rectangle.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Offset="0" Color="#40000000"/>
+                                <GradientStop Offset="1" Color="#00000000"/>
+                            </RadialGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </StackPanel>
+            </Viewbox>
+        </Grid>
+    )"));
+
+	// View creation to render and interact with the user interface
+	// We transfer the ownership to a global pointer instead of a Ptr<> because there is no way
+	// in GLUT to do shutdown and we don't want the Ptr<> to be released at global time
+	_view = Noesis::GUI::CreateView(xaml).GiveOwnership();
+	_view->SetIsPPAAEnabled(true);
+
+	// Renderer initialization with an OpenGL device
+	_view->GetRenderer()->Init(NoesisApp::GLFactory::CreateDevice());
 
 	//2) Creamos una ventana
 	GLFWwindow* pWindow = glfwCreateWindow(iWidth, iHeight, "", nullptr, nullptr);
